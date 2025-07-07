@@ -26,38 +26,4 @@ O sistema foi projetado seguindo as melhores práticas de engenharia de software
 
 ## 🚀 Execução do Ambiente Local
 
-Siga estes passos para iniciar o ambiente de desenvolvimento completo na sua máquina.
-
-### 1. Pré-requisitos
-
-Antes de começar, garanta que você tem as seguintes ferramentas instaladas:
-
-* **Git:** Para clonar o projeto.
-* **Go:** Versão 1.23 ou superior.
-* **Docker & Docker Desktop:** Essencial para rodar os contêineres da nossa infraestrutura.
-* **Make:** Para executar os comandos de atalho do `Makefile`.
-    * **Windows:** A forma mais fácil é usar o terminal **Git Bash**, que já vem com o `make`. Alternativamente, instale via Chocolatey (`choco install make`).
-* **AWS CLI:** Necessário para validar os recursos no LocalStack manualmente.
-
-### 2. Configuração Inicial (Apenas na primeira vez)
-
-1.  **Clone o repositório** para a sua máquina.
-
-2.  **Crie o arquivo de ambiente local:** Navegue até a pasta `build/docker/local/`. Você verá um arquivo chamado `.env-sample`. Faça uma cópia dele e renomeie a cópia para `.env`.
-    ```bash
-    # Navegue até a pasta
-    cd build/docker/local/
-
-    # Copie o arquivo de exemplo
-    cp .env-sample .env
-    ```
-    *O arquivo `.env` já vem com as configurações padrão para o ambiente Docker local e não precisa de alterações para funcionar.*
-
-3.  **Adicione um vídeo de teste:** Na raiz do projeto, navegue até a pasta `build/local_upload/` e coloque um arquivo de vídeo de exemplo. Renomeie-o para `trailerGTA6_4K.mp4` (ou o nome que estiver configurado no seu `docker-compose.infra.yml`).
-
-### 3. Iniciando o Ambiente Completo
-
-Com a configuração inicial pronta, iniciar todo o ambiente (infraestrutura + aplicação) é muito simples. Na **raiz do projeto**, execute um único comando:
-
-```bash
-make setup
+Siga estes passos para iniciar o ambiente de desenvolvimento completo na sua máquina (WIP)
