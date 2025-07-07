@@ -1,6 +1,6 @@
 INFRA_COMPOSE := -f build/docker/local/docker-compose.yml
 
-.PHONY: help setup down infra-up infra-down app-up app-down logs aws-init-logs test lint
+.PHONY: 
 
 up: 
 	@echo "INFO: Starting environment..."
