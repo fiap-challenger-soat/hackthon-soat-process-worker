@@ -1,0 +1,9 @@
+build/bin
+
+#vscode
+.idea
+.vscode
+cmd/hackthon-soat-process-worker/__debug_bin
+
+# Local environment variables
+.env
