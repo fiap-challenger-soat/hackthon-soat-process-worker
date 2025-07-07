@@ -2,11 +2,10 @@
 
 Este projeto implementa o `hackthon-soat-process-worker`, worker responsável por processar vídeos de forma assíncrona para entrega do hackathon da pós graduação de Arquitetura de Software da FIAP.
 
-O serviço opera em segundo plano, consumindo tarefas de uma fila de mensagens. Para cada tarefa, ele baixa um vídeo de um serviço de armazenamento, extrai todos os frames usando FFmpeg, compacta os frames em um único arquivo `.zip` e disponibiliza o resultado final para download.
+O serviço opera em segundo plano, consumindo tarefas de uma fila de mensagens SQS. Para cada tarefa, ele baixa um vídeo de um serviço do S3, extrai todos os frames usando FFmpeg, compacta os frames em um único arquivo `.zip` e realiza o upload do arquivo em um S3 para download.
 
 ### ✨ Arquitetura
 
-O sistema foi projetado seguindo as melhores práticas de engenharia de software:
 * **Microserviços:** O worker é um componente independente, desacoplado de outras partes do sistema (como a API).
 * **Arquitetura Hexagonal:** A lógica de negócio (o "core") é completamente isolada de detalhes de infraestrutura (banco de dados, filas, etc.), promovendo alta testabilidade e manutenibilidade.
 * **Orientado a Mensageria:** A comunicação é feita de forma assíncrona através de filas de mensagens (SQS), o que torna o sistema resiliente a picos de carga.
