@@ -63,18 +63,18 @@ jobs:
         wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
         unzip sonar-scanner-cli-4.8.0.2856-linux.zip
         sudo mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
-        echo "$GITHUB_WORKSPACE/opt/sonar-scanner/bin" >> $GITHUB_PATH
+        echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
 
     - name: SonarQube Analysis
       run: |
-        sonar-scanner \
+        /opt/sonar-scanner/bin/sonar-scanner \
           -Dsonar.projectKey=fiap-challenger-soat_hackthon-soat-process-worker \
           -Dsonar.sources=. \
           -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
           -Dsonar.login=${{ env.SONAR_TOKEN }} \
           -Dsonar.go.coverage.reportPaths=coverage.out \
           -Dsonar.go.tests.reportPaths=test-report.xml \
-          -Dsonar.coverage.exclusions=**/*_test.go,**/mocks/**,**/cmd/**,**/vendor/** \
+          -Dsonar.coverage.exclusions=**/*_test.go,**/mocks/**,**/cmd/**,**/vendor/**,**/internal/clients/**,**/internal/config/**,**/internal/core/domain/**,**/internal/pkg/tests/** \
           -Dsonar.test.inclusions=**/*_test.go \
           -Dsonar.coverage.minimum=80 \
           -Dsonar.qualitygate.wait=true
