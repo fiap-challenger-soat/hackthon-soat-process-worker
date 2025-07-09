@@ -43,6 +43,8 @@ jobs:
       run: |
         go test -coverprofile=coverage.out -covermode=atomic ./...
         go tool cover -func=coverage.out
+        ls -la coverage.out
+        echo "Coverage file size: $(wc -c < coverage.out) bytes"
 
     - name: Check coverage threshold
       run: |
@@ -55,6 +57,14 @@ jobs:
           echo "✅ Coverage is above or equal to 80% (current: $COVERAGE%)"
         fi
 
+    - name: Verify coverage file
+      run: |
+        echo "Checking coverage file..."
+        ls -la coverage.out
+        echo "File content preview:"
+        head -20 coverage.out
+        echo "Total lines in coverage file: $(wc -l < coverage.out)"
+
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@master
       env:
@@ -64,6 +74,7 @@ jobs:
         args: >
           -Dsonar.organization=fiap-challenger-soat
           -Dsonar.projectKey=fiap-challenger-soat_hackthon-soat-process-worker
+          -Dsonar.sources=.
           -Dsonar.go.coverage.reportPaths=coverage.out
           -Dsonar.coverage.exclusions=**/*_test.go,**/mocks/**,**/cmd/**,**/vendor/**
           -Dsonar.test.inclusions=**/*_test.go
