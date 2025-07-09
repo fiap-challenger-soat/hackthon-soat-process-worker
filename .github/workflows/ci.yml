@@ -1,0 +1,83 @@
+name: Workflow CI - Process Worker
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+
+env:
+  GO_VERSION: '1.23.0'
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+jobs:
+  test-and-quality:
+    name: Test and Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run tests with coverage
+      run: |
+        go test -coverprofile=coverage.out -covermode=atomic ./...
+        go tool cover -func=coverage.out
+
+    - name: Check coverage threshold
+      run: |
+        COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        echo "Coverage: $COVERAGE%"
+        if (( $(echo "$COVERAGE <= 80" | bc -l) )); then
+          echo "❌ Coverage is below 80% (current: $COVERAGE%)"
+          exit 1
+        else
+          echo "✅ Coverage is above or equal to 80% (current: $COVERAGE%)"
+        fi
+
+    - name: Install SonarQube Scanner
+      run: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+        unzip sonar-scanner-cli-4.8.0.2856-linux.zip
+        sudo mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
+        echo "$GITHUB_WORKSPACE/opt/sonar-scanner/bin" >> $GITHUB_PATH
+
+    - name: SonarQube Analysis
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey=fiap-challenger-soat_hackthon-soat-process-worker \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ env.SONAR_TOKEN }} \
+          -Dsonar.go.coverage.reportPaths=coverage.out \
+          -Dsonar.go.tests.reportPaths=test-report.xml \
+          -Dsonar.coverage.exclusions=**/*_test.go,**/mocks/**,**/cmd/**,**/vendor/** \
+          -Dsonar.test.inclusions=**/*_test.go \
+          -Dsonar.coverage.minimum=80 \
+          -Dsonar.qualitygate.wait=true
+
+    - name: Quality Gate Check
+      run: |
+        echo "✅ CI/CD Pipeline completed successfully"
+        echo "📊 Coverage threshold of 80% has been enforced"
+        echo "🔍 SonarQube analysis passed" 
