@@ -9,9 +9,20 @@ BUCKET_INPUT="bucket-videos-entrada"
 BUCKET_OUTPUT="bucket-videos-saida"
 QUEUE_WORK="work-queue"
 QUEUE_ERROR="error-queue"
-VIDEO_FILE="/docker-entrypoint-initdb.d/name-of-your-file"  # <- Change this to your video file name
-S3_KEY="uploads/video-inicial.mp4"
-JOB_ID="194f2506-3a19-42fb-91a0-50442a1bfcfd"
+
+# Arrays com os dados dos vídeos
+VIDEO_FILES=(
+  "/docker-entrypoint-initdb.d/your-video-file" # <- Add the name of your video file here
+  "/docker-entrypoint-initdb.d/your-video-file" # <- Add the name of your video file here
+)
+S3_KEYS=(
+  "uploads/video-inicial.mp4"
+  "uploads/foto.jpg"
+)
+JOB_IDS=(
+  "194f2506-3a19-42fb-91a0-50442a1bfcfd"
+  "33daf232-990b-4411-8146-c5cd7c2e5c86"
+)
 
 # 1. Create S3 Buckets
 echo "[1/6] Creating input S3 bucket: $BUCKET_INPUT"
@@ -27,15 +38,19 @@ WORK_QUEUE_URL=$(aws --endpoint-url="$AWS_ENDPOINT_URL" sqs create-queue --queue
 echo "[4/6] Creating error SQS queue: $QUEUE_ERROR"
 aws --endpoint-url="$AWS_ENDPOINT_URL" sqs create-queue --queue-name "$QUEUE_ERROR"
 
-# 3. Upload Example Video
-echo "[5/6] Uploading test video to S3: $VIDEO_FILE -> s3://$BUCKET_INPUT/$S3_KEY"
-aws --endpoint-url="$AWS_ENDPOINT_URL" s3 cp "$VIDEO_FILE" "s3://$BUCKET_INPUT/$S3_KEY"
+# 3. Upload Example Videos
+echo "[5/6] Uploading test videos to S3"
+for i in "${!VIDEO_FILES[@]}"; do
+  aws --endpoint-url="$AWS_ENDPOINT_URL" s3 cp "${VIDEO_FILES[$i]}" "s3://$BUCKET_INPUT/${S3_KEYS[$i]}"
+done
 
-# 4. Send Initial Message to Work Queue
-MESSAGE_BODY=$(printf '{"job_id": "%s", "video_path": "%s"}' "$JOB_ID" "$S3_KEY")
-echo "[6/6] Sending initial message to SQS queue: $QUEUE_WORK"
-aws --endpoint-url="$AWS_ENDPOINT_URL" sqs send-message \
-  --queue-url "$WORK_QUEUE_URL" \
-  --message-body "$MESSAGE_BODY"
+# 4. Send Initial Messages to Work Queue
+echo "[6/6] Sending initial messages to SQS queue: $QUEUE_WORK"
+for i in "${!VIDEO_FILES[@]}"; do
+  MESSAGE_BODY=$(printf '{"job_id": "%s", "video_path": "%s"}' "${JOB_IDS[$i]}" "${S3_KEYS[$i]}")
+  aws --endpoint-url="$AWS_ENDPOINT_URL" sqs send-message \
+    --queue-url "$WORK_QUEUE_URL" \
+    --message-body "$MESSAGE_BODY"
+done
 
 echo "=== ✅ [AWS Local Init] Resources created and populated successfully! ==="
