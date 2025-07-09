@@ -11,13 +11,14 @@ down:
 	@docker-compose $(INFRA_COMPOSE) down -v --remove-orphans
 	@echo "INFO: Environment shut down successfully."
 
-logs:
-	@echo "INFO: Following environment logs... (Press Ctrl+C to exit)"
-	@docker-compose $(APP_COMPOSE) logs -f
-
 test: 
 	@echo "INFO: Running tests..."
-	@go test -v ./...
+	@go test -cover -coverprofile=coverage.out `go list ./... | grep -v mocks | grep -v cmd`
+
+cov: ## 📊 Generates a coverage report.
+	@echo "INFO: Generating coverage report..."
+	@go tool cover -html=coverage.out
+	@echo "INFO: Coverage report generated at coverage.html"
 
 lint: ## 💅 Runs the linter to check code quality (requires golangci-lint installed).
 	@echo "INFO: Running linter..."
@@ -26,3 +27,7 @@ lint: ## 💅 Runs the linter to check code quality (requires golangci-lint inst
 lint-fix: ## 🛠️ Runs the linter and automatically fixes issues (requires golangci-lint installed).
 	@echo "INFO: Running linter with auto-fix..."
 	@golangci-lint run --fix
+
+gen-mock: ## 🛠️ Generates mock files for testing.
+	@echo "INFO: Generating mock files..."
+	@go generate ./...

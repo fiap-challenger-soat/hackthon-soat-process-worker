@@ -18,11 +18,6 @@ type appConfig struct {
 	DbMaxIdleConns int    `env:"DB_MAX_IDLE_CONNS,required"`
 	DbMaxOpenConns int    `env:"DB_MAX_OPEN_CONNS,required"`
 
-	// Cache config
-	RedisAddress  string `env:"REDIS_ADDRESS,required"`
-	// RedisPassword string `env:"REDIS_PASSWORD,required"`
-	RedisDB       int    `env:"REDIS_DB,required"`
-
 	// AWS config
 	AWSRegion          string `env:"AWS_REGION,required"`
 	AWSAccessKeyID     string `env:"AWS_ACCESS_KEY_ID,required"`

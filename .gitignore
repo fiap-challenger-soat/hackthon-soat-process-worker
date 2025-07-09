@@ -4,6 +4,5 @@ build/bin
 .idea
 .vscode
 cmd/hackthon-soat-process-worker/__debug_bin
-
-# Local environment variables
 .env
+coverege.out
