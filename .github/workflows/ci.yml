@@ -5,7 +5,6 @@ on:
     branches: [ 'main' ]
   pull_request:
     branches: [ 'main' ]
-    
 env:
   GO_VERSION: '1.23.0'
 
@@ -63,6 +62,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
+          -Dsonar.organization=fiap-challenger-soat
           -Dsonar.projectKey=fiap-challenger-soat_hackthon-soat-process-worker
           -Dsonar.go.coverage.reportPaths=coverage.out
           -Dsonar.coverage.exclusions=**/*_test.go,**/mocks/**,**/cmd/**,**/vendor/**
