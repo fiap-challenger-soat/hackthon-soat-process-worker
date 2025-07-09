@@ -3,17 +3,16 @@ package aws
 import (
 	"context"
 
-	cgf "github.com/fiap-challenger-soat/hackthon-soat-process-worker/config"
+	cgf "github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/config"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/sqs"
 )
 
-func NewAwsConfig(ctx context.Context) (aws.Config, error) {
-	opts := []func(*config.LoadOptions) error{
+func NewAWSConfig(ctx context.Context) (aws.Config, error) {
+	return config.LoadDefaultConfig(
+		ctx,
 		config.WithRegion(cgf.Vars.AWSRegion),
 		config.WithCredentialsProvider(
 			credentials.NewStaticCredentialsProvider(
@@ -22,32 +21,10 @@ func NewAwsConfig(ctx context.Context) (aws.Config, error) {
 				cgf.Vars.AWSSessionToken,
 			),
 		),
-	}
-
-	if cgf.Vars.AWSEndpointURL != "" {
-		opts = append(opts, config.WithEndpointResolver(
+		config.WithEndpointResolver(
 			aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
-				return aws.Endpoint{
-					URL: cgf.Vars.AWSEndpointURL,
-				}, nil
+				return aws.Endpoint{URL: cgf.Vars.AWSEndpointURL}, nil
 			}),
-		))
-	}
-
-	cfg, err := config.LoadDefaultConfig(ctx, opts...)
-	if err != nil {
-		return aws.Config{}, err
-	}
-
-	return cfg, nil
-}
-
-func NewS3Client(cfg aws.Config) *s3.Client {
-	return s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.UsePathStyle = true
-	})
-}
-
-func NewSQSClient(cfg aws.Config) *sqs.Client {
-	return sqs.NewFromConfig(cfg)
+		),
+	)
 }

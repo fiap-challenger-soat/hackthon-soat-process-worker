@@ -8,30 +8,25 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/model"
+	model "github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/domain"
+	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/ports"
 )
 
-type WorkQueue interface {
-	Publish(ctx context.Context, event model.JobErrorEvent) error
-	Receive(ctx context.Context, maxMessages int32, waitTimeSeconds int32) ([]types.Message, error)
-	Delete(ctx context.Context, receiptHandle string) error
-}
-
-type sqsAdapter struct {
-	client        *sqs.Client
+type SQSAdapter struct {
+	client        ports.SQSClient
 	queueURL      string
 	errorQueueURL string
 }
 
-func NewSQSAdapter(client *sqs.Client, errorQueueURL, workQueueURL string) WorkQueue {
-	return &sqsAdapter{
+func NewSQSAdapter(client ports.SQSClient, errorQueueURL, workQueueURL string) *SQSAdapter {
+	return &SQSAdapter{
 		client:        client,
 		errorQueueURL: errorQueueURL,
 		queueURL:      workQueueURL,
 	}
 }
 
-func (s *sqsAdapter) Publish(ctx context.Context, event model.JobErrorEvent) error {
+func (s *SQSAdapter) Publish(ctx context.Context, event model.JobErrorEvent) error {
 	body, err := json.Marshal(event)
 	if err != nil {
 		return fmt.Errorf("failed to serialize error message to JSON: %w", err)
@@ -48,7 +43,7 @@ func (s *sqsAdapter) Publish(ctx context.Context, event model.JobErrorEvent) err
 	return nil
 }
 
-func (s *sqsAdapter) Receive(ctx context.Context, maxMessages int32, waitTimeSeconds int32) ([]types.Message, error) {
+func (s *SQSAdapter) Receive(ctx context.Context, maxMessages int32, waitTimeSeconds int32) ([]types.Message, error) {
 	out, err := s.client.ReceiveMessage(ctx, &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(s.queueURL),
 		MaxNumberOfMessages: maxMessages,
@@ -61,7 +56,7 @@ func (s *sqsAdapter) Receive(ctx context.Context, maxMessages int32, waitTimeSec
 	return out.Messages, nil
 }
 
-func (s *sqsAdapter) Delete(ctx context.Context, receiptHandle string) error {
+func (s *SQSAdapter) Delete(ctx context.Context, receiptHandle string) error {
 	_, err := s.client.DeleteMessage(ctx, &sqs.DeleteMessageInput{
 		QueueUrl:      aws.String(s.queueURL),
 		ReceiptHandle: aws.String(receiptHandle),
@@ -69,6 +64,6 @@ func (s *sqsAdapter) Delete(ctx context.Context, receiptHandle string) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete message from SQS: %w", err)
 	}
-	
+
 	return nil
 }

@@ -10,13 +10,9 @@ import (
 	"path/filepath"
 )
 
-type WorkProcessor interface {
-	Process(ctx context.Context, localVideoPath string) (string, string, error)
-}
-
 type ffmpegProcessor struct{}
 
-func NewFFmpegProcessor() WorkProcessor {
+func NewFFmpegProcessor() *ffmpegProcessor {
 	return &ffmpegProcessor{}
 }
 

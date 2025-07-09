@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/config"
+	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

@@ -8,29 +8,25 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/model"
+	model "github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/domain"
+	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/ports"
 )
 
-type S3FileHandler interface {
-	DownloadFile(ctx context.Context, objectKey string) (*model.DownloadedFile, error)
-	UploadFile(ctx context.Context, localFilePath, objectKey string) error
-}
-
-type s3client struct {
-	client         *s3.Client
+type S3Client struct {
+	client         ports.S3Client
 	bucketDownName string
 	bucketUpName   string
 }
 
-func NewS3Adapter(s3Client *s3.Client, bucketUpName, bucketDownName string) *s3client {
-	return &s3client{
+func NewS3Adapter(s3Client ports.S3Client, bucketUpName, bucketDownName string) *S3Client {
+	return &S3Client{
 		client:         s3Client,
 		bucketUpName:   bucketDownName,
 		bucketDownName: bucketUpName,
 	}
 }
 
-func (a *s3client) DownloadFile(ctx context.Context, objectKey string) (*model.DownloadedFile, error) {
+func (a *S3Client) DownloadFile(ctx context.Context, objectKey string) (*model.DownloadedFile, error) {
 	input := &s3.GetObjectInput{
 		Bucket: aws.String(a.bucketDownName),
 		Key:    aws.String(objectKey),
@@ -58,7 +54,7 @@ func (a *s3client) DownloadFile(ctx context.Context, objectKey string) (*model.D
 	return downloaded, nil
 }
 
-func (a *s3client) UploadFile(ctx context.Context, localFilePath, objectKey string) error {
+func (a *S3Client) UploadFile(ctx context.Context, localFilePath, objectKey string) error {
 
 	file, err := os.Open(localFilePath)
 	if err != nil {

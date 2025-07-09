@@ -1,4 +1,4 @@
-package consumer
+package input
 
 import (
 	"context"
@@ -7,24 +7,23 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/model"
-	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/service"
-	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/driven/queue"
+	model "github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/domain"
+	"github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/ports"
 )
 
-type consumer struct {
-	queue     queue.WorkQueue
-	processor service.JobProcessor
+type Consumer struct {
+	queue     ports.SQSAdapter
+	processor ports.JobService
 }
 
-func NewConsumer(queue queue.WorkQueue, processor service.JobProcessor) *consumer {
-	return &consumer{
+func NewConsumer(queue ports.SQSAdapter, processor ports.JobService) *Consumer {
+	return &Consumer{
 		queue:     queue,
 		processor: processor,
 	}
 }
 
-func (c *consumer) Start(ctx context.Context) {
+func (c *Consumer) Start(ctx context.Context) {
 	log.Println("INFO: SQS consumer started. Listening for jobs...")
 	for {
 		select {
@@ -45,7 +44,7 @@ func (c *consumer) Start(ctx context.Context) {
 	}
 }
 
-func (c *consumer) handleMessage(ctx context.Context, msg types.Message) {
+func (c *Consumer) handleMessage(ctx context.Context, msg types.Message) {
 	if msg.Body == nil || msg.ReceiptHandle == nil {
 		log.Println("ERROR: Invalid message (nil body or receipt handle).")
 		return
@@ -64,7 +63,7 @@ func (c *consumer) handleMessage(ctx context.Context, msg types.Message) {
 		log.Printf("ERROR: [Job %s] ProcessJob failed. Message will not be deleted. Error: %v", jobMsg.JobID, err)
 		return
 	}
-	
+
 	if err := c.queue.Delete(ctx, *msg.ReceiptHandle); err != nil {
 		log.Printf("ERROR: [Job %s] Failed to delete message: %v", jobMsg.JobID, err)
 	} else {
