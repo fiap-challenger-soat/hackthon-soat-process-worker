@@ -42,7 +42,7 @@ func main() {
 
 	// Initialize adapters
 	videoRepository := repository.NewVideoJobRepository(db)
-	storageAdapter := storage.NewS3Adapter(s3Client, cfg.S3UploadBucket, cfg.S3DownloadBucket)
+	storageAdapter := storage.NewS3Adapter(s3Client, cfg.S3Bucket)
 	videoProcessingAdapter := processor.NewFFmpegProcessor()
 	sqsMessageQueueAdapter := queue.NewSQSAdapter(sqsClient, cfg.SQSErrorQueueURL, cfg.SQSWorkQueueURL)
 

@@ -26,8 +26,7 @@ type appConfig struct {
 	AWSEndpointURL     string `env:"AWS_ENDPOINT_URL,required"`
 
 	// S3 config
-	S3UploadBucket   string `env:"S3_BUCKET_UP,required"`
-	S3DownloadBucket string `env:"S3_BUCKET_DOWN,required"`
+	S3Bucket string `env:"S3_BUCKET,required"`
 
 	// SQS config
 	SQSWorkQueueURL  string `env:"SQS_WORK_QUEUE_URL,required"`

@@ -158,14 +158,14 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
 		sts.mockStorage.EXPECT().DownloadFile(sts.ctx, videoPath).Return(nil, errors.New("download error"))
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
-		sts.mockErrorPub.EXPECT().Publish(sts.ctx, gomock.Any()).Return(nil) 
+		sts.mockErrorPub.EXPECT().Publish(sts.ctx, gomock.Any()).Return(nil)
 		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "failed to download video from S3")
 	})
 
-	s.Run("should fail job and return nil if processor fails", func(t *testing.T) {
+	s.Run("should fail job and return error if processor fails", func(t *testing.T) {
 		jobID := "job-123"
 		videoPath := "s3://upload/video.mp4"
 		job := &domain.VideoJobDTO{
@@ -188,10 +188,11 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 
 		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
 
-		sts.NoError(err, "expected no error when processor fails (job is failed internally)")
+		sts.Error(err)
+		sts.Contains(err.Error(), "failed to process video")
 	})
 
-	s.Run("should fail job and return nil if upload fails", func(t *testing.T) {
+	s.Run("should fail job and return error if upload fails", func(t *testing.T) {
 		jobID := "job-123"
 		videoPath := "s3://upload/video.mp4"
 		job := &domain.VideoJobDTO{
@@ -215,7 +216,8 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 
 		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
 
-		sts.NoError(err, "expected no error when upload fails (job is failed internally)")
+		sts.Error(err)
+		sts.Contains(err.Error(), "failed to upload processed video to S3")
 	})
 
 	s.Run("should return error if setStatus to completed fails", func(t *testing.T) {
@@ -274,7 +276,8 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 
 		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
 
-		sts.NoError(err, "expected no error even if publishing to error queue fails")
+		sts.Error(err)
+		sts.Contains(err.Error(), "failed to upload processed video to S3")
 	})
 
 }

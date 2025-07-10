@@ -62,13 +62,13 @@ func (s *JobService) ProcessJob(ctx context.Context, jobID, videoPath string) er
 	localZipPath, zipName, err := s.processor.Process(ctx, tempVideoFile.Path)
 	if err != nil {
 		s.failJob(ctx, job)
-		return nil
+		return fmt.Errorf("job %s: failed to process video: %w", jobID, err)
 	}
 
 	outputPath := fmt.Sprintf("output/%s", zipName)
 	if err := s.storage.UploadFile(ctx, localZipPath, outputPath); err != nil {
 		s.failJob(ctx, job)
-		return nil
+		return fmt.Errorf("job %s: failed to upload processed video to S3: %w", jobID, err)
 	}
 
 	job.OutputPath = lo.ToPtr(outputPath)
