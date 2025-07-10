@@ -55,6 +55,7 @@ func (s *JobService) ProcessJob(ctx context.Context, jobID, videoPath string) er
 
 	tempVideoFile, err := s.storage.DownloadFile(ctx, videoPath)
 	if err != nil {
+		s.failJob(ctx, job)
 		return fmt.Errorf("job %s: failed to download video from S3: %w", jobID, err)
 	}
 

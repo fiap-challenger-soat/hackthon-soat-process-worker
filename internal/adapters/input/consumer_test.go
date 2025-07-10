@@ -63,7 +63,7 @@ func (suite *consumerTestSuite) Test_Start_Success() {
 		}, nil).
 		Times(1)
 
-	// Permite chamadas extras retornando vazio para encerrar o loop
+	
 	suite.mockQueue.EXPECT().
 		Receive(gomock.Any(), int32(10), int32(20)).
 		Return([]types.Message{}, nil).
@@ -79,7 +79,7 @@ func (suite *consumerTestSuite) Test_Start_Success() {
 		Return(nil).
 		Times(1)
 
-	// Cancel context after short delay to exit Start loop
+	
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 		cancel()
@@ -92,13 +92,13 @@ func (suite *consumerTestSuite) Test_Start_ReceiveError() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Simula erro ao receber mensagens
+	
 	suite.mockQueue.EXPECT().
 		Receive(gomock.Any(), int32(10), int32(20)).
 		Return(nil, assert.AnError).
 		Times(1)
 
-	// Permite chamadas extras retornando vazio para encerrar o loop
+	
 	suite.mockQueue.EXPECT().
 		Receive(gomock.Any(), int32(10), int32(20)).
 		Return([]types.Message{}, nil).
@@ -209,7 +209,10 @@ func (suite *consumerTestSuite) Test_Start_ProcessJobError() {
 		Return(assert.AnError).
 		Times(1)
 
-	// Delete should NOT be called since ProcessJob failed
+	suite.mockQueue.EXPECT().
+		Delete(gomock.Any(), mockMsg.receipt).
+		Return(nil).
+		Times(1)
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)
