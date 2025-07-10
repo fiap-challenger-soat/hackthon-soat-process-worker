@@ -67,7 +67,8 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Sucess() {
 
 		sts.mockStorage.EXPECT().DownloadFile(sts.ctx, videoPath).Return(&domain.DownloadedFile{
 			Path: "/testdata/downloadFile/trailerGTA6_4k.mp4",
-			File: nil, 
+			File: nil,
+		}, nil)
 
 		sts.mockProcessor.EXPECT().Process(sts.ctx, "/testdata/downloadFile/trailerGTA6_4k.mp4").Return("/testdata/processed/trailerGTA6_4k.zip", "trailerGTA6_4k.zip", nil)
 		sts.mockStorage.EXPECT().UploadFile(sts.ctx, "/testdata/processed/trailerGTA6_4k.zip", "output/trailerGTA6_4k.zip").Return(nil)
