@@ -67,7 +67,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Sucess() {
 
 		sts.mockStorage.EXPECT().DownloadFile(sts.ctx, videoPath).Return(&domain.DownloadedFile{
 			Path: "/testdata/downloadFile/trailerGTA6_4k.mp4",
-			File: nil, // Assuming the file is not needed for this test
+			File: nil,
 		}, nil)
 
 		sts.mockProcessor.EXPECT().Process(sts.ctx, "/testdata/downloadFile/trailerGTA6_4k.mp4").Return("/testdata/processed/trailerGTA6_4k.zip", "trailerGTA6_4k.zip", nil)
@@ -152,11 +152,13 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 			CreatedAt: "2023-10-01T00:00:00Z",
 			UserID:    "user-123",
 			VideoPath: videoPath,
+			Email:     "user@email.com",
 		}
 		sts.mockRepo.EXPECT().GetJobByID(sts.ctx, jobID).Return(job, nil)
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
 		sts.mockStorage.EXPECT().DownloadFile(sts.ctx, videoPath).Return(nil, errors.New("download error"))
-
+		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
+		sts.mockErrorPub.EXPECT().Publish(sts.ctx, gomock.Any()).Return(nil) 
 		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
 
 		sts.Error(err)
