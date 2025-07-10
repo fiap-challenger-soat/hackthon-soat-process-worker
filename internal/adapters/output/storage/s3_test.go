@@ -76,7 +76,6 @@ func (suite *s3TestSuite) Test_DownloadFile() {
 	st.Run("Should return error when failed to copy S3 content", func(t *testing.T) {
 		objectKey := "video.mp4"
 
-		// Reader que sempre retorna erro ao ler
 		errorReader := io.NopCloser(&errorOnRead{})
 
 		suite.mockS3Client.EXPECT().

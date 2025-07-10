@@ -8,7 +8,6 @@ import (
 type VideoStatus string
 
 const (
-	// VideoStatusStarted    VideoStatus = "started"
 	VideoStatusProcessing VideoStatus = "processing"
 	VideoStatusCompleted  VideoStatus = "completed"
 	VideoStatusFailed     VideoStatus = "failed"

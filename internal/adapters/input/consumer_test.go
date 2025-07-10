@@ -40,7 +40,6 @@ func (suite *consumerTestSuite) Test_Start_Success() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Mock message to be received
 	mockMsg := struct {
 		jobID     string
 		videoPath string
