@@ -21,7 +21,7 @@ services:
 
   localstack:
     image: localstack/localstack:latest
-    container_name: soat_localstack
+    container_name: localstack
     environment:
       - SERVICES=s3,sqs
       - EDGE_PORT=4566
