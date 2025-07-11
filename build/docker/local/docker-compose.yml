@@ -16,6 +16,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   localstack:
     image: localstack/localstack:latest
@@ -31,5 +33,11 @@ services:
       - "4566:4566"
     volumes:
       - ./init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
-      - ../../local_upload/your-video-file:/docker-entrypoint-initdb.d/your-video-file # <- Add the name of your video file here
-      - ../../local_upload/your-video-file:/docker-entrypoint-initdb.d/your-video-file # <- Add the name of your video file here
+      - ../../local_upload/trailerGTA6_4K.mp4:/docker-entrypoint-initdb.d/trailerGTA6_4K.mp4
+      - ../../local_upload/JimmyKravitz.jpg:/docker-entrypoint-initdb.d/JimmyKravitz.jpg
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
