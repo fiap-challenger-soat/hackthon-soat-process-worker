@@ -16,11 +16,13 @@ O **hackthon-soat-process-worker** é um serviço backend assíncrono para proce
 
 #### Caso de Sucesso
 
-![Caso de Sucesso]([https://drive.google.com/drive/u/0/folders/1-NE70aPGQ095kNQRzVqoVaI8tMJSww23](https://drive.google.com/file/d/1xbmCnDGWXq3DSND3PnkEtpj2DmeMOTIx/view?usp=sharing))
+<img width="1272" height="779" alt="process-worker-arch" src="https://github.com/user-attachments/assets/f3b968dd-9033-428a-b7fe-4e354aab5789" />
 
 #### Caso de Erro
 
-[Visualizar Caso de Erro (Google Drive)]([https://drive.google.com/drive/u/0/folders/1-NE70aPGQ095kNQRzVqoVaI8tMJSww23](https://drive.google.com/file/d/1iJxWQd4J48whN1iyDwluCrOIx4qnE4RZ/view?usp=sharing))
+_Devido ao tamanho da imagem, por favor acessar o link abaixo para visualizar_
+
+[Visualizar Caso de Erro (Google Drive)](https://drive.google.com/file/d/1iJxWQd4J48whN1iyDwluCrOIx4qnE4RZ/view?usp=sharing)
 
 ---
 
