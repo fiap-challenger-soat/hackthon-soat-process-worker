@@ -25,14 +25,14 @@ JOB_IDS=(
 
 # 1. Create S3 Bucket
 echo "[1/5] Creating S3 bucket: $BUCKET_NAME"
-aws --endpoint-url="$AWS_ENDPOINT_URL" s3 mb "s3://$BUCKET_NAME"
+aws --endpoint-url="http://localhost:4566" s3 mb "s3://bucket-videos"
 
 # 2. Create SQS Queues
 echo "[2/5] Creating work SQS queue: $QUEUE_WORK"
-WORK_QUEUE_URL=$(aws --endpoint-url="$AWS_ENDPOINT_URL" sqs create-queue --queue-name "$QUEUE_WORK" --query 'QueueUrl' --output text)
+WORK_QUEUE_URL=$(aws --endpoint-url="http://localhost:4566" sqs create-queue --queue-name "work-queue" --query 'QueueUrl' --output text)
 
 echo "[3/5] Creating error SQS queue: $QUEUE_ERROR"
-aws --endpoint-url="$AWS_ENDPOINT_URL" sqs create-queue --queue-name "$QUEUE_ERROR"
+aws --endpoint-url="http://localhost:4566" sqs create-queue --queue-name "error-queue"
 
 # 3. Upload Example Videos
 echo "[4/5] Uploading test videos to S3"

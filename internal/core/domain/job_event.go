@@ -6,6 +6,5 @@ type JobErrorEvent struct {
 }
 
 type JobMessageEvent struct {
-	JobID     string `json:"job_id"`
-	VideoPath string `json:"video_path"`
+	JobID string `json:"job_id"`
 }

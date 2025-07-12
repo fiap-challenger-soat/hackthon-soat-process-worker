@@ -41,15 +41,15 @@ func (m *MockJobService) EXPECT() *MockJobServiceMockRecorder {
 }
 
 // ProcessJob mocks base method.
-func (m *MockJobService) ProcessJob(ctx context.Context, jobID, videoPath string) error {
+func (m *MockJobService) ProcessJob(ctx context.Context, jobID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProcessJob", ctx, jobID, videoPath)
+	ret := m.ctrl.Call(m, "ProcessJob", ctx, jobID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ProcessJob indicates an expected call of ProcessJob.
-func (mr *MockJobServiceMockRecorder) ProcessJob(ctx, jobID, videoPath any) *gomock.Call {
+func (mr *MockJobServiceMockRecorder) ProcessJob(ctx, jobID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessJob", reflect.TypeOf((*MockJobService)(nil).ProcessJob), ctx, jobID, videoPath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessJob", reflect.TypeOf((*MockJobService)(nil).ProcessJob), ctx, jobID)
 }

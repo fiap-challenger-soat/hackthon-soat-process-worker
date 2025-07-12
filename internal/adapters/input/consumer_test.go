@@ -69,7 +69,7 @@ func (suite *consumerTestSuite) Test_Start_Success() {
 		AnyTimes()
 
 	suite.mockService.EXPECT().
-		ProcessJob(gomock.Any(), mockMsg.jobID, mockMsg.videoPath).
+		ProcessJob(gomock.Any(), mockMsg.jobID).
 		Return(nil).
 		Times(1)
 
@@ -204,7 +204,7 @@ func (suite *consumerTestSuite) Test_Start_ProcessJobError() {
 		AnyTimes()
 
 	suite.mockService.EXPECT().
-		ProcessJob(gomock.Any(), mockMsg.jobID, mockMsg.videoPath).
+		ProcessJob(gomock.Any(), mockMsg.jobID).
 		Return(assert.AnError).
 		Times(1)
 
@@ -253,7 +253,7 @@ func (suite *consumerTestSuite) Test_Start_QueueDeleteError() {
 		AnyTimes()
 
 	suite.mockService.EXPECT().
-		ProcessJob(gomock.Any(), mockMsg.jobID, mockMsg.videoPath).
+		ProcessJob(gomock.Any(), mockMsg.jobID).
 		Return(nil).
 		Times(1)
 

@@ -8,9 +8,9 @@ services:
       POSTGRES_DB: video_db
     ports:
       - "5432:5432"
-    volumes:
-      - ./00_init.sql:/docker-entrypoint-initdb.d/00_init.sql
-      - ./01_insert.sql:/docker-entrypoint-initdb.d/01_insert.sql
+    # volumes:
+      # - ./00_init.sql:/docker-entrypoint-initdb.d/00_init.sql
+      # - ./01_insert.sql:/docker-entrypoint-initdb.d/01_insert.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d video_db"]
       interval: 10s
@@ -31,10 +31,33 @@ services:
       - AWS_SESSION_TOKEN=test
     ports:
       - "4566:4566"
-    volumes:
-      - ./init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
-      - ../../local_upload/trailerGTA6_4K.mp4:/docker-entrypoint-initdb.d/trailerGTA6_4K.mp4
-      - ../../local_upload/JimmyKravitz.jpg:/docker-entrypoint-initdb.d/JimmyKravitz.jpg
+    # volumes:
+    #   - ./init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
+    #   - ../../local_upload/trailerGTA6_4K.mp4:/docker-entrypoint-initdb.d/trailerGTA6_4K.mp4
+    #   - ../../local_upload/JimmyKravitz.jpg:/docker-entrypoint-initdb.d/JimmyKravitz.jpg
+    networks:
+      - app-network
+
+  process-worker:
+    build:
+      context: ../../..
+      dockerfile: Dockerfile
+    container_name: process-worker
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=video_db
+      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - SQS_WORK_QUEUE_URL=http://localhost:4566/000000000000/work-queue
+      - SQS_ERROR_QUEUE_URL=http://localhost:4566/000000000000/error-queue
+    depends_on:
+      - postgres
+      - localstack
     networks:
       - app-network
 

@@ -33,12 +33,8 @@ func NewJobService(
 	}
 }
 
-func (s *JobService) ProcessJob(ctx context.Context, jobID, videoPath string) error {
-	log.Printf("[Job %s] Starting processing for video: %s", jobID, videoPath)
-	if videoPath == "" {
-		log.Printf("CRITICAL ERROR: [Job %s] videoPath is empty. Invalid message will be discarded.", jobID)
-		return nil
-	}
+func (s *JobService) ProcessJob(ctx context.Context, jobID string) error {
+	log.Printf("[Job %s] Starting processing for video: %s", jobID)
 
 	job, err := s.repo.GetJobByID(ctx, jobID)
 	if err != nil {
@@ -53,7 +49,7 @@ func (s *JobService) ProcessJob(ctx context.Context, jobID, videoPath string) er
 		return fmt.Errorf("job %s: failed to update status to 'processing': %w", jobID, err)
 	}
 
-	tempVideoFile, err := s.storage.DownloadFile(ctx, videoPath)
+	tempVideoFile, err := s.storage.DownloadFile(ctx, job.VideoPath)
 	if err != nil {
 		s.failJob(ctx, job)
 		return fmt.Errorf("job %s: failed to download video from S3: %w", jobID, err)
