@@ -48,5 +48,5 @@ type ProcessorAdapter interface {
 
 //go:generate mockgen -destination=mocks/mock_jobservice.go -package=mocks github.com/fiap-challenger-soat/hackthon-soat-process-worker/internal/core/ports JobService
 type JobService interface {
-	ProcessJob(ctx context.Context, jobID, videoPath string) error
+	ProcessJob(ctx context.Context, jobID string) error
 }

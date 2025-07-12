@@ -27,7 +27,7 @@ func (suite *s3TestSuite) SetupTest() {
 	ctrl := gomock.NewController(suite.T())
 	suite.ctx = context.Background()
 	suite.mockS3Client = mocks.NewMockS3Client(ctrl)
-	suite.s3Adapter = storage.NewS3Adapter(suite.mockS3Client, "bucket-videos-entrada", "bucket-videos-saida")
+	suite.s3Adapter = storage.NewS3Adapter(suite.mockS3Client, "bucket-videos")
 }
 
 func (suite *s3TestSuite) AfterTest(_, _ string) {

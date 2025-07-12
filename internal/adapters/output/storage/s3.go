@@ -13,22 +13,20 @@ import (
 )
 
 type S3Client struct {
-	client         ports.S3Client
-	bucketDownName string
-	bucketUpName   string
+	client     ports.S3Client
+	bucketName string
 }
 
-func NewS3Adapter(s3Client ports.S3Client, bucketUpName, bucketDownName string) *S3Client {
+func NewS3Adapter(s3Client ports.S3Client, bucketName string) *S3Client {
 	return &S3Client{
-		client:         s3Client,
-		bucketUpName:   bucketDownName,
-		bucketDownName: bucketUpName,
+		client:     s3Client,
+		bucketName: bucketName,
 	}
 }
 
 func (a *S3Client) DownloadFile(ctx context.Context, objectKey string) (*model.DownloadedFile, error) {
 	input := &s3.GetObjectInput{
-		Bucket: aws.String(a.bucketDownName),
+		Bucket: aws.String(a.bucketName),
 		Key:    aws.String(objectKey),
 	}
 
@@ -67,7 +65,7 @@ func (a *S3Client) UploadFile(ctx context.Context, localFilePath, objectKey stri
 	}
 
 	input := &s3.PutObjectInput{
-		Bucket:        aws.String(a.bucketUpName),
+		Bucket:        aws.String(a.bucketName),
 		Key:           aws.String(objectKey),
 		Body:          file,
 		ContentLength: aws.Int64(stat.Size()),

@@ -5,8 +5,7 @@ echo "=== [AWS Local Init] Initializing resources in LocalStack ==="
 
 # Configuration
 AWS_ENDPOINT_URL="http://localhost:4566"
-BUCKET_INPUT="bucket-videos-entrada"
-BUCKET_OUTPUT="bucket-videos-saida"
+BUCKET_NAME="bucket-videos"
 QUEUE_WORK="work-queue"
 QUEUE_ERROR="error-queue"
 
@@ -24,28 +23,25 @@ JOB_IDS=(
   "33daf232-990b-4411-8146-c5cd7c2e5c86"
 )
 
-# 1. Create S3 Buckets
-echo "[1/6] Creating input S3 bucket: $BUCKET_INPUT"
-aws --endpoint-url="$AWS_ENDPOINT_URL" s3 mb "s3://$BUCKET_INPUT"
-
-echo "[2/6] Creating output S3 bucket: $BUCKET_OUTPUT"
-aws --endpoint-url="$AWS_ENDPOINT_URL" s3 mb "s3://$BUCKET_OUTPUT"
+# 1. Create S3 Bucket
+echo "[1/5] Creating S3 bucket: $BUCKET_NAME"
+aws --endpoint-url="$AWS_ENDPOINT_URL" s3 mb "s3://$BUCKET_NAME"
 
 # 2. Create SQS Queues
-echo "[3/6] Creating work SQS queue: $QUEUE_WORK"
+echo "[2/5] Creating work SQS queue: $QUEUE_WORK"
 WORK_QUEUE_URL=$(aws --endpoint-url="$AWS_ENDPOINT_URL" sqs create-queue --queue-name "$QUEUE_WORK" --query 'QueueUrl' --output text)
 
-echo "[4/6] Creating error SQS queue: $QUEUE_ERROR"
+echo "[3/5] Creating error SQS queue: $QUEUE_ERROR"
 aws --endpoint-url="$AWS_ENDPOINT_URL" sqs create-queue --queue-name "$QUEUE_ERROR"
 
 # 3. Upload Example Videos
-echo "[5/6] Uploading test videos to S3"
+echo "[4/5] Uploading test videos to S3"
 for i in "${!VIDEO_FILES[@]}"; do
-  aws --endpoint-url="$AWS_ENDPOINT_URL" s3 cp "${VIDEO_FILES[$i]}" "s3://$BUCKET_INPUT/${S3_KEYS[$i]}"
+  aws --endpoint-url="$AWS_ENDPOINT_URL" s3 cp "${VIDEO_FILES[$i]}" "s3://$BUCKET_NAME/${S3_KEYS[$i]}"
 done
 
 # 4. Send Initial Messages to Work Queue
-echo "[6/6] Sending initial messages to SQS queue: $QUEUE_WORK"
+echo "[5/5] Sending initial messages to SQS queue: $QUEUE_WORK"
 for i in "${!VIDEO_FILES[@]}"; do
   MESSAGE_BODY=$(printf '{"job_id": "%s", "video_path": "%s"}' "${JOB_IDS[$i]}" "${S3_KEYS[$i]}")
   aws --endpoint-url="$AWS_ENDPOINT_URL" sqs send-message \

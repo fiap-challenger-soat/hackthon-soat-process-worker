@@ -33,12 +33,8 @@ func NewJobService(
 	}
 }
 
-func (s *JobService) ProcessJob(ctx context.Context, jobID, videoPath string) error {
-	log.Printf("[Job %s] Starting processing for video: %s", jobID, videoPath)
-	if videoPath == "" {
-		log.Printf("CRITICAL ERROR: [Job %s] videoPath is empty. Invalid message will be discarded.", jobID)
-		return nil
-	}
+func (s *JobService) ProcessJob(ctx context.Context, jobID string) error {
+	log.Printf("[Job %s] Starting processing for video", jobID)
 
 	job, err := s.repo.GetJobByID(ctx, jobID)
 	if err != nil {
@@ -53,7 +49,7 @@ func (s *JobService) ProcessJob(ctx context.Context, jobID, videoPath string) er
 		return fmt.Errorf("job %s: failed to update status to 'processing': %w", jobID, err)
 	}
 
-	tempVideoFile, err := s.storage.DownloadFile(ctx, videoPath)
+	tempVideoFile, err := s.storage.DownloadFile(ctx, job.VideoPath)
 	if err != nil {
 		s.failJob(ctx, job)
 		return fmt.Errorf("job %s: failed to download video from S3: %w", jobID, err)
@@ -62,13 +58,13 @@ func (s *JobService) ProcessJob(ctx context.Context, jobID, videoPath string) er
 	localZipPath, zipName, err := s.processor.Process(ctx, tempVideoFile.Path)
 	if err != nil {
 		s.failJob(ctx, job)
-		return nil
+		return fmt.Errorf("job %s: failed to process video: %w", jobID, err)
 	}
 
 	outputPath := fmt.Sprintf("output/%s", zipName)
 	if err := s.storage.UploadFile(ctx, localZipPath, outputPath); err != nil {
 		s.failJob(ctx, job)
-		return nil
+		return fmt.Errorf("job %s: failed to upload processed video to S3: %w", jobID, err)
 	}
 
 	job.OutputPath = lo.ToPtr(outputPath)
@@ -85,7 +81,6 @@ func (s *JobService) failJob(ctx context.Context, job *domain.VideoJobDTO) {
 	_ = s.setStatus(ctx, job, domain.VideoStatusFailed)
 	event := domain.JobErrorEvent{
 		JobID: job.ID,
-		Email: job.Email,
 	}
 	if err := s.errorPub.Publish(ctx, event); err != nil {
 		log.Printf("CRITICAL ERROR: [Job %s] Failed to publish to error queue: %v", job.ID, err)
