@@ -59,7 +59,7 @@ func (c *Consumer) handleMessage(ctx context.Context, msg types.Message) {
 	}
 
 	log.Printf("INFO: [Job %s] Processing started.", jobMsg.JobID)
-	err := c.processor.ProcessJob(ctx, jobMsg.JobID, jobMsg.VideoPath)
+	err := c.processor.ProcessJob(ctx, jobMsg.JobID)
 	if err != nil {
 		if delErr := c.queue.Delete(ctx, *msg.ReceiptHandle); delErr != nil {
 			log.Printf("ERROR: [Job %s] Failed to delete message after error: %v", jobMsg.JobID, delErr)

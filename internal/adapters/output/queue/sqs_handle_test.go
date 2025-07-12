@@ -40,7 +40,6 @@ func (s *sqsHandleTest) Test_Publish() {
 	st := s.T()
 	event := model.JobErrorEvent{
 		JobID: "job-123",
-		Email: "teste@gmail.com",
 	}
 
 	st.Run("should publish message successfully", func(t *testing.T) {

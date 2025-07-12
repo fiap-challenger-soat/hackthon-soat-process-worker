@@ -78,7 +78,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Sucess() {
 			return nil
 		})
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.NoError(err, "expected no error when processing job")
 
@@ -89,34 +89,23 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Sucess() {
 func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 	s := sts.T()
 
-	s.Run("should return nil if videoPath is empty", func(t *testing.T) {
-		jobID := "job-123"
-		videoPath := ""
-
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
-
-		sts.NoError(err, "expected no error when videoPath is empty")
-	})
-
 	s.Run("should return nil if job not found in DB", func(t *testing.T) {
 		jobID := "job-404"
-		videoPath := "s3://upload/video.mp4"
 
 		sts.mockRepo.EXPECT().GetJobByID(sts.ctx, jobID).Return(nil, gorm.ErrRecordNotFound)
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.NoError(err, "expected no error when job is not found")
 	})
 
 	s.Run("should return error if GetJobByID fails with unexpected error", func(t *testing.T) {
 		jobID := "job-err"
-		videoPath := "s3://upload/video.mp4"
 		expectedErr := errors.New("db error")
 
 		sts.mockRepo.EXPECT().GetJobByID(sts.ctx, jobID).Return(nil, expectedErr)
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "failed to fetch job details")
@@ -137,7 +126,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 		sts.mockRepo.EXPECT().GetJobByID(sts.ctx, jobID).Return(job, nil)
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(expectedErr)
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "failed to update status to 'processing'")
@@ -159,7 +148,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 		sts.mockStorage.EXPECT().DownloadFile(sts.ctx, videoPath).Return(nil, errors.New("download error"))
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
 		sts.mockErrorPub.EXPECT().Publish(sts.ctx, gomock.Any()).Return(nil)
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "failed to download video from S3")
@@ -186,7 +175,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
 		sts.mockErrorPub.EXPECT().Publish(sts.ctx, gomock.Any()).Return(nil)
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "failed to process video")
@@ -214,7 +203,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
 		sts.mockErrorPub.EXPECT().Publish(sts.ctx, gomock.Any()).Return(nil)
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "failed to upload processed video to S3")
@@ -240,7 +229,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 		sts.mockStorage.EXPECT().UploadFile(sts.ctx, "/tmp/video.zip", "output/video.zip").Return(nil)
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(errors.New("final status error"))
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "job completed, but failed to update final status")
@@ -260,7 +249,6 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 
 		event := domain.JobErrorEvent{
 			JobID: jobID,
-			Email: "pedrinho@gmail.com",
 		}
 
 		sts.mockRepo.EXPECT().GetJobByID(sts.ctx, jobID).Return(job, nil)
@@ -274,7 +262,7 @@ func (sts *jobServiceTestSuite) Test_ProcessJob_Errors() {
 		sts.mockRepo.EXPECT().UpdateJobStatus(sts.ctx, gomock.Any()).Return(nil)
 		sts.mockErrorPub.EXPECT().Publish(sts.ctx, event).Return(errors.New("publish error"))
 
-		err := sts.jobService.ProcessJob(sts.ctx, jobID, videoPath)
+		err := sts.jobService.ProcessJob(sts.ctx, jobID)
 
 		sts.Error(err)
 		sts.Contains(err.Error(), "failed to upload processed video to S3")

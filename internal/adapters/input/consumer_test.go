@@ -42,12 +42,10 @@ func (suite *consumerTestSuite) Test_Start_Success() {
 
 	mockMsg := struct {
 		jobID     string
-		videoPath string
 		body      string
 		receipt   string
 	}{
 		jobID:     "job-123",
-		videoPath: "upload/video.mp4",
 		body:      `{"job_id":"job-123","video_path":"upload/video.mp4"}`,
 		receipt:   "receipt-handle-123",
 	}
@@ -69,7 +67,7 @@ func (suite *consumerTestSuite) Test_Start_Success() {
 		AnyTimes()
 
 	suite.mockService.EXPECT().
-		ProcessJob(gomock.Any(), mockMsg.jobID, mockMsg.videoPath).
+		ProcessJob(gomock.Any(), mockMsg.jobID).
 		Return(nil).
 		Times(1)
 
@@ -178,12 +176,10 @@ func (suite *consumerTestSuite) Test_Start_ProcessJobError() {
 
 	mockMsg := struct {
 		jobID     string
-		videoPath string
 		body      string
 		receipt   string
 	}{
 		jobID:     "job-err",
-		videoPath: "video-err.mp4",
 		body:      `{"job_id":"job-err","video_path":"video-err.mp4"}`,
 		receipt:   "receipt-handle-err",
 	}
@@ -204,7 +200,7 @@ func (suite *consumerTestSuite) Test_Start_ProcessJobError() {
 		AnyTimes()
 
 	suite.mockService.EXPECT().
-		ProcessJob(gomock.Any(), mockMsg.jobID, mockMsg.videoPath).
+		ProcessJob(gomock.Any(), mockMsg.jobID).
 		Return(assert.AnError).
 		Times(1)
 
@@ -227,12 +223,10 @@ func (suite *consumerTestSuite) Test_Start_QueueDeleteError() {
 
 	mockMsg := struct {
 		jobID     string
-		videoPath string
 		body      string
 		receipt   string
 	}{
 		jobID:     "job-del-err",
-		videoPath: "video-del-err.mp4",
 		body:      `{"job_id":"job-del-err","video_path":"video-del-err.mp4"}`,
 		receipt:   "receipt-handle-del-err",
 	}
@@ -253,7 +247,7 @@ func (suite *consumerTestSuite) Test_Start_QueueDeleteError() {
 		AnyTimes()
 
 	suite.mockService.EXPECT().
-		ProcessJob(gomock.Any(), mockMsg.jobID, mockMsg.videoPath).
+		ProcessJob(gomock.Any(), mockMsg.jobID).
 		Return(nil).
 		Times(1)
 
